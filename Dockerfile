@@ -32,8 +32,19 @@ COPY emails emails
 ENV NODE_ENV production
 RUN ./node_modules/.bin/grunt build
 
+##### NGINX
+FROM nginx:alpine as nginx_static
+
+RUN apk add curl net-tools wget
+COPY --from=1 /usr/src/app/public /usr/share/nginx/html/public
+ADD  default.conf /etc/nginx/conf.d/default.conf
+ENTRYPOINT ["/usr/sbin/nginx"]
+CMD ["-g", "daemon off;"]
+
+
+
 # Final container
-FROM ubuntu:18.04
+FROM ubuntu:18.04 as ubuntu
 
 LABEL maintainer="Grafana team <hello@grafana.com>"
 
